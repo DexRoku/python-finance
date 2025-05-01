@@ -21,8 +21,6 @@ page_element = """
 
 st.markdown(page_element, unsafe_allow_html=True)
 
-
-
 def load_transactions(file):
     try:
         df = pd.read_csv(file)
@@ -40,6 +38,18 @@ def load_transactions(file):
         st.error(f"Error processing the csv file: {str(e)}")
         return None
 
+# def load_transactions(file):
+#     try:
+#         df = pd.read_csv(file)
+#         df.columns = [col.strip() for col in df.columns]
+#         df["Amount"] = df["Amount"].str.replace(",", "").astype(float)
+#         df["Date"] = pd.to_datetime(df["Date"],format="%d %b %Y")
+#         st.write(df)
+#         return df
+
+#     except Exception as e:
+#         st.error(f"error processing file: {str(e)}")
+#         return None
 
 def main():
     st.title("Finance Dashboard")
@@ -48,6 +58,16 @@ def main():
 
     if upload_file is not None:
         df = load_transactions(upload_file)
+
+        if df is not None:
+            debits = df[df["Amount"] < 0]
+            credits = df[df["Amount"] >= 0]
+
+            tab1, tab2 = st.tabs(["Expenses (Debits)", "Payments(Credits)"])
+            with tab1:
+                st.write(debits)
+            with tab2:
+                st.write(credits)
 
 
 main()
